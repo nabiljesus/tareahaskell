@@ -22,13 +22,15 @@ addOrReplace e k v = if null tl then (k,v) : hd
 b = (replicate 10000 ("b",True)) ++ [("a",False)] ++ (replicate 10000 ("b",True))
 
 remove :: Environment -> String -> Environment
-remove e k = undefined
+remove e k = if null tl then hd
+                        else hd ++ tail tl
+    where (hd,tl)  = span (\ (elem,_) -> k/=elem) e
 
 evalP :: Environment -> Proposition -> Maybe Bool
-evalP e p = undefined
+evalP e p = undefined -- Javier
 
 vars :: Proposition -> [String]
-vars p = undefined
+vars p = undefined -- Nab
 
 isTautology :: Proposition -> Bool
-isTautology p = undefined
+isTautology p = undefined -- Nab Jav
