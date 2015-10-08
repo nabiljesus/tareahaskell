@@ -44,6 +44,9 @@ evalP e (And prop1 prop2) = maybeBin  (&&) (evalP e prop1)       (evalP e prop2)
 evalP e (Or  prop1 prop2) = maybeBin  (||) (evalP e prop1)       (evalP e prop2)
 evalP e (Imp prop1 prop2) = maybeBin  (||) (evalP e (Neg prop1)) (evalP e prop2)
 
+
+
+
 -- vars Aux functions ---------------------------------------
 union :: (Eq a) => [a] -> [a] -> [a]
 union [] b = b
@@ -60,6 +63,8 @@ vars (Or  prop1 prop2) = union (vars prop1) $vars prop2
 vars (Imp prop1 prop2) = union (vars prop1) $vars prop2
 
 
+
+
 -- isTautology aux functions ----------------------------------------
 type Binary = [Bool]
 
@@ -71,10 +76,11 @@ numToBinary n = convert n []
                                         else convert q ((r==1):l)
                         where (q,r) = quotRem num 2
 
-generateCase :: [String] -> Int -> Environment  -- Ambiente asociado
-generateCase vars n = snd $ foldr zipRight (numToBinary n,[]) vars
-    where zipRight var ([],acc)  = ([],(var,False):acc)
-          zipRight var (bin,acc) = (tail bin,(var,head bin):acc)
+generateCase :: [String] -> Int -> (Bool,Environment)  -- Ambiente asociado
+generateCase vars n = snd $ foldr zipRight (numToBinary n,(True,[])) vars
+    where zipRight var ([],(b,acc))  = ([],(False,((var,False):acc)))
+          zipRight var (bin,(b,acc)) = if b then (tail bin,(b && head bin,((var,head bin):acc)))
+                                       else (tail bin,(False,((var,head bin):acc)))
 
 isLastCase :: Environment -> Bool
 isLastCase env = and $ map snd env
@@ -84,15 +90,22 @@ isLastCase env = and $ map snd env
 isTautology :: Proposition -> Bool
 isTautology p = check p 0
     where check p n 
-            | isLastCase env = fromJust (evalP env p)
+            | isLastC        = fromJust (evalP env p)
             | otherwise      = case evalP env p of 
                                    (Just True ) -> check p (n+1)
                                    (Just False) -> False
                                    (Nothing )   -> error "Error 404 var not found"
-            where env = generateCase (vars p) n
+            where (isLastC,env) = generateCase (vars p) n
 
 -- b = (replicate 10000 ("b",True)) ++ [("a",False)] ++ (replicate 10000 ("b",True))
--- unAnd = And (Or (Var "a") (Var "b")) (Imp (Cons True) (Neg (And (Var "b") (Var "i"))))
+unTrueSin :: Proposition -> Proposition ->  Proposition
+unTrueSin x y = (And x y)
+
+test = [(Var z) | z <- [[k] | k<-['a'..'q']]]
+--tardó (22.97 secs, 11278177840 bytes)
+unGranTrue = foldr (unTrueSin) (And (Cons True) (Cons True )) test
+bestOne    = Or unGranTrue (Cons True)
+unAnd = And (Or (Var "a") (Var "b")) (Imp (Cons True) (Neg (And (Var "b") (Var "i"))))
 
 -- Pruebas, borrar despues
 {- 
