@@ -1,3 +1,5 @@
+module Cards where
+
 data Suit = Clubs 
           | Diamonds 
           | Spades 
