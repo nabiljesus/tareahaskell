@@ -1,11 +1,19 @@
+{-
+    true.hs contiene el ejercicio 2, asociado a proposiciones y sus
+    repectivas evaluaciones.
+    Creado por:
+        Javier López
+        Nabil  Márquez
+-}
+
 import Data.Maybe(fromJust)
 
-data Proposition = Cons Bool
-                 | Var  String
-                 | Neg  Proposition
-                 | And Proposition Proposition
+data Proposition = Cons Bool                    --Constante Bool
+                 | Var  String                   --Variable
+                 | Neg  Proposition               -- Negado de una prop
+                 | And Proposition Proposition     
                  | Or  Proposition Proposition
-                 | Imp Proposition Proposition
+                 | Imp Proposition Proposition      --Implicacion
                 deriving(Show,Eq)
 
 type Environment = [(String,Bool)]
@@ -91,37 +99,26 @@ isTautology p = check p 0
                                    (Nothing )   -> error "Error 404 var not found"
             where env = generateCase (vars p) n
 
--- b = (replicate 10000 ("b",True)) ++ [("a",False)] ++ (replicate 10000 ("b",True))
--- unAnd = And (Or (Var "a") (Var "b")) (Imp (Cons True) (Neg (And (Var "b") (Var "i"))))
 
--- Pruebas, borrar despues
-{- 
-main = do let t =[ 
-                    isTautology (Imp (Var "p") (Or (Var "p") (Var "q"))), 
-                    isTautology (Imp (Cons False) (Var "loquesea")), 
-                    isTautology (Or  (Var "p") (Neg (Var "p"))),
-                    isTautology (Imp (Imp (Var "p") (Var "q"))      -- Monotonicity, hue 
-                                     (Imp (Or (Var "p") (Var "r"))
-                                          (Or (Var "q") (Var "r"))
-                                     )
-                                ) 
-                  ]
-          print(and t)
--}
 
 {-
-
-Pruebas que hice (isTautology bestOne)
-
--- b = (replicate 10000 ("b",True)) ++ [("a",False)] ++ (replicate 10000 ("b",True))
-unTrueSin :: Proposition -> Proposition ->  Proposition
-unTrueSin x y = (And x y)
-
-test = [(Var z) | z <- [[k] | k<-['a'..'q']]]
---tardó (23.05 secs, 11186059240 bytes)
-unGranTrue = foldr (unTrueSin) (And (Cons True) (Cons True )) test
-bestOne    = Or unGranTrue (Cons True)
-unAnd = And (Or (Var "a") (Var "b")) (Imp (Cons True) (Neg (And (Var "b") (Var "i"))))
-
-
+También realizamos esta segunda implementación que pensamos que 
+debería ejecutarse en menos tiempo. Pero en la práctica no 
+ocurrió. No estamos seguros de a que se debe.
 -}
+
+generateCase' :: [String] -> Int -> (Bool,Environment)  -- Ambiente asociado
+generateCase' vars n = snd $ foldr zipRight (numToBinary n,(True,[])) vars
+    where zipRight var ([],(b,acc))  = ([],(False,((var,False):acc)))
+          zipRight var (bin,(b,acc)) = if b then (tail bin,(b && head bin,((var,head bin):acc)))
+                                       else (tail bin,(False,((var,head bin):acc)))
+
+isTautology' :: Proposition -> Bool
+isTautology' p = check p 0
+    where check p n 
+            | isLastC        = fromJust (evalP env p)
+            | otherwise      = case evalP env p of 
+                                   (Just True ) -> check p (n+1)
+                                   (Just False) -> False
+                                   (Nothing )   -> error "Error 404 var not found"
+            where (isLastC,env) = generateCase' (vars p) n

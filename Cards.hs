@@ -1,3 +1,9 @@
+{-
+    Módulo que define el tipo de las cartas y una mano de cartas
+    Creado por:
+        Javier López
+        Nabil  Márquez
+-}
 module Cards where
 
 data Suit = Clubs 
@@ -38,9 +44,11 @@ instance Show Hand where
     show (H []) = ""
     show (H c ) = concatMap (\x -> show x ++ " ") c
 
-empty :: Hand
+-- Mano Vacía
+empty :: Hand 
 empty = H []
 
+-- Cantidad de cartas en una mano
 size :: Hand -> Int
 size (H c) = length c
 
