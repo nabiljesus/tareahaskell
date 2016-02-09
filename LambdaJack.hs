@@ -24,8 +24,8 @@ busted = (>21) . value
 winner :: Hand -> Hand -> Player
 winner myh lh = case (busted myh, busted lh) of
                     (True ,True ) -> LambdaJack
-                    (True ,False) -> You
-                    (False,True ) -> LambdaJack
+                    (True ,False) -> LambdaJack
+                    (False,True ) -> You
                     _             -> if mval > lval then You
                                                     else LambdaJack
                 where mval = value myh
@@ -42,10 +42,10 @@ draw (H (d:ds)) (H us)  = Just (H ds ,H (d:us))
 
 playLambda :: Hand -> Hand    -- Juego de la computadora, la cague D:
 playLambda h =  till16 h empty
-              where till16 (H []) myH  = myH
-                    till16 deck   myH  = if (value myH) < 16 then till16 nDeck nHand
-                                          else myH
-                      where (nDeck,nHand) = fromJust $ draw deck myH
+              where till16 (H []) lbH  = lbH
+                    till16 deck   lbH  = if (value lbH) < 16 then till16 nDeck nHand
+                                          else lbH
+                      where (nDeck,nHand) = fromJust $ draw deck lbH
 
 
 shuffle :: StdGen -> Hand -> Hand
