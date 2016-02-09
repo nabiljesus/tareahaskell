@@ -1,13 +1,15 @@
 module LambdaJack where
 
-import Cards as C
-import System.Random 
+import Cards as C 
+import System.Random(randomR,StdGen)
+import Data.Maybe(Maybe,fromJust)
 
 data Player = LambdaJack | You
+  deriving(Eq)
 
 value :: Hand -> Int
 value (H cards) = sumCards (foldl accVal (0,0) cards)
-    where accVal (accC,accA) c = case (C.value c) of 
+    where accVal (accC,accA) c = case (getVal c) of 
                                     Numeric n -> (accC+n,accA) 
                                     Ace       -> (accC,accA+1) 
                                     _         -> (accC+10,accA)
@@ -17,29 +19,34 @@ value (H cards) = sumCards (foldl accVal (0,0) cards)
                                     else acc+aces*11
 
 busted :: Hand -> Bool
-busted = (>21) . LambdaJack.value
+busted = (>21) . value
 
 winner :: Hand -> Hand -> Player
 winner myh lh = case (busted myh, busted lh) of
-                    (True ,True ) -> error "No winner, wtf?"
+                    (True ,True ) -> LambdaJack
                     (True ,False) -> You
                     (False,True ) -> LambdaJack
                     _             -> if mval > lval then You
                                                     else LambdaJack
-                where mval = LambdaJack.value myh
-                      lval = LambdaJack.value lh
+                where mval = value myh
+                      lval = value lh
 
 fullDeck :: Hand
 fullDeck = H [ Card v s | v<- values, s<-suites ]
-            where values = Ace : Queen : Jack : Ace : map Numeric [2..10]
+            where values = Ace : Queen : Jack : King : map Numeric [2..10]
                   suites = Clubs : Diamonds : Spades : Hearts : []
 
 draw :: Hand -> Hand -> Maybe (Hand,Hand)
-draw (H [])        _    = Nothing              -- Not sure about this
+draw (H [])      myH    = Just (empty, myH)       -- O es eso o es error
 draw (H (d:ds)) (H us)  = Just (H ds ,H (d:us))
 
-playLambda :: Hand -> Hand     -- Juego de la computadora, la cague D:
-playLambda = undefined
+playLambda :: Hand -> Hand    -- Juego de la computadora, la cague D:
+playLambda h =  till16 h empty
+              where till16 (H []) myH  = myH
+                    till16 deck   myH  = if (value myH) < 16 then till16 nDeck nHand
+                                          else myH
+                      where (nDeck,nHand) = fromJust $ draw deck myH
+
 
 shuffle :: StdGen -> Hand -> Hand
 shuffle rs (H deck) =  H sDeck
@@ -49,3 +56,12 @@ shuffle rs (H deck) =  H sDeck
                   (fhalf,shalf)   = splitAt (rndNum-1) d
                   shuffledDeck    = (head shalf) : acc 
                   restOfDeck      = fhalf ++ tail shalf
+
+--randomList :: (Random a) => (a,a) -> Int -> StdGen -> [a]
+--randomList bnds n = take n . randomRs bnds  
+
+--my a g b      = case a of 
+--                0 -> b
+--                _ -> my (a-1) (snd ans) $ (fst ans):b
+
+--                where ans = randomR (1,a) g

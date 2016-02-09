@@ -4,7 +4,15 @@
         Javier López
         Nabil  Márquez
 -}
-module Cards where
+module Cards(
+	Hand(..),
+	Card(Card,suit),
+	Suit(..),
+	Value(..),
+	empty,
+	getVal,
+	size
+	) where
 
 data Suit = Clubs 
           | Diamonds 
@@ -28,7 +36,7 @@ instance Show Value where
     show Jack        = "J"
     show Queen       = "Q"
     show King        = "K"
-    show Ace         = "As"
+    show Ace         = "A"
 
 data Card = Card {
     value :: Value,
@@ -37,6 +45,9 @@ data Card = Card {
 
 instance Show Card where
     show (Card v s) = show s ++ show v
+
+getVal :: Card -> Value
+getVal = value
 
 newtype Hand = H [Card]
 
