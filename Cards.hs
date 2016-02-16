@@ -6,11 +6,10 @@
 -}
 module Cards(
 	Hand(..),
-	Card(Card,suit),
+	Card(..),
 	Suit(..),
 	Value(..),
 	empty,
-	getVal,
 	size
 	) where
 
@@ -48,10 +47,6 @@ data Card = Card {
 
 instance Show Card where
     show (Card v s) = show s ++ show v
-
--- Obtener el valor de una carta
-getVal :: Card -> Value
-getVal = value
 
 newtype Hand = H [Card]
 

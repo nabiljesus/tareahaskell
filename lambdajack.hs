@@ -10,7 +10,7 @@
 
 module Main where 
 
-import Cards         as C
+
 import LambdaJack    as L
 import System.Random(newStdGen,StdGen)
 import System.IO

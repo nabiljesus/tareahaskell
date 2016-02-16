@@ -1,8 +1,9 @@
 module LambdaJack where
 
-import Cards as C 
+import Cards hiding(value)
+import qualified Cards(value)
 import System.Random(randomR,StdGen)
-import Data.Maybe(Maybe,fromJust)
+import Data.Maybe(fromJust)
 
 data Player = LambdaJack | You
   deriving(Eq)
@@ -10,7 +11,7 @@ data Player = LambdaJack | You
 -- Función para obtener el valor de una mano
 value :: Hand -> Int
 value (H cards) = sumCards (foldl accVal (0,0) cards)
-    where accVal (accC,accA) c = case (C.value c) of 
+    where accVal (accC,accA) c = case Cards.value c of 
                                     Numeric n -> (accC+n,accA) 
                                     Ace       -> (accC,accA+1) 
                                     _         -> (accC+10,accA)
@@ -38,27 +39,27 @@ winner myh lh = case (busted myh, busted lh) of
 fullDeck :: Hand
 fullDeck = H [ Card v s | v<- values, s<-suites ]
             where values = Ace : Queen : Jack : King : map Numeric [2..10]
-                  suites = Clubs : Diamonds : Spades : Hearts : []
+                  suites =  [Clubs, Diamonds, Spades, Hearts]
 
 draw :: Hand -> Hand -> Maybe (Hand,Hand)
-draw (H [])      myH    = Nothing              -- O es eso o es error
+draw (H [])      _      = Nothing              -- O es eso o es error
 draw (H (d:ds)) (H us)  = Just (H ds ,H (d:us))
 
 playLambda :: Hand -> Hand    -- Juego de la computadora, la cague D:
 playLambda h =  till16 h empty
               where till16 (H []) lbH  = lbH
-                    till16 deck   lbH  = if (value lbH) < 16 then till16 nDeck nHand
+                    till16 deck   lbH  = if value lbH < 16 then till16 nDeck nHand
                                           else lbH
                       where (nDeck,nHand) = fromJust $ draw deck lbH
 
 
 shuffle :: StdGen -> Hand -> Hand
 shuffle rs (H deck) =  H sDeck
-    where (newGen,sDeck,emptyD)   = foldl takeCard (rs,[],deck) [52,51..1]
+    where (_,sDeck,_)   = foldl takeCard (rs,[],deck) [52,51..1]
           takeCard (genR,acc,d) n = ( nexGen , shuffledDeck , restOfDeck)
             where (rndNum,nexGen) = randomR (1,n) genR
                   (fhalf,shalf)   = splitAt (rndNum-1) d
-                  shuffledDeck    = (head shalf) : acc 
+                  shuffledDeck    = head shalf : acc 
                   restOfDeck      = fhalf ++ tail shalf
 
 --randomList :: (Random a) => (a,a) -> Int -> StdGen -> [a]
