@@ -36,15 +36,19 @@ winner myh lh = case (busted myh, busted lh) of
                 where mval = value myh
                       lval = value lh
 
+-- Nuevo mazo de cartas
 fullDeck :: Hand
 fullDeck = H [ Card v s | v<- values, s<-suites ]
             where values = Ace : Queen : Jack : King : map Numeric [2..10]
                   suites =  [Clubs, Diamonds, Spades, Hearts]
 
+-- Dado un mazo y una mano se entrega el resultado de pasar
+-- la carta en el tope a la mano
 draw :: Hand -> Hand -> Maybe (Hand,Hand)
 draw (H [])      _      = Nothing              -- O es eso o es error
 draw (H (d:ds)) (H us)  = Just (H ds ,H (d:us))
 
+-- Juego automático de Lambda, o la 'computadora'
 playLambda :: Hand -> Hand    -- Juego de la computadora, la cague D:
 playLambda h =  till16 h empty
               where till16 (H []) lbH  = lbH
@@ -53,6 +57,8 @@ playLambda h =  till16 h empty
                       where (nDeck,nHand) = fromJust $ draw deck lbH
 
 
+-- Dado un generador de números al azar y un mazo, se obtiene
+-- el mismo mazo barajado
 shuffle :: StdGen -> Hand -> Hand
 shuffle rs (H deck) =  H sDeck
     where (_,sDeck,_)   = foldl takeCard (rs,[],deck) [52,51..1]
