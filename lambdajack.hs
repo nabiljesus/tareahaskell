@@ -45,60 +45,58 @@ continuePlaying :: IO Bool
 continuePlaying = 
     do putStrLn "\nDesea seguir jugando? (S/N): "
        ynLoop
+       where ynLoop = do opt <- getChar
+                         case toUpper opt of
+                            'S' -> return True
+                            'N' -> return False
+                            _   -> ynLoop
 
-       where
-       	  ynLoop = do
-       	  	       {
-       	  			opt <- getChar;
-       	  		    case(toUpper opt) of
-		         	    'S' -> return True
-		        	    'N' -> return False
-		        	    _   -> ynLoop;
-		        	}
 
 --Loop principal del juego
 gameloop :: GameState -> IO ()
-gameloop gs =
-    do if (games gs) > 0
-           then currentState gs
-           else putStr ""
-       let (deck,hand) = getJust $ draw (shuffle (generator gs) fullDeck) empty -- Barajar mazo
-       drawNPlay deck hand gs -- Loop de tomar una carta hasta querer detener, y permitir a lambda jugar
-        where drawNPlay d h gs = 
-                do let Just (nDeck,nHand) =  draw d h -- Tomar una carta
-                   putStr $ "\n" ++ name gs ++ ", tu mano es "++
-                        show nHand ++", suma "++ (show . L.value) nHand ++ "."
-                   -- newRand <- newStdGen
-                   let (_,newRand) = next $ generator gs
-                   if busted nHand 
-                        then do putStrLn " Perdiste :("  --En caso de perder se intenta inciar otra partida
-                                oneMoreRound gs { games=(games gs)+1,
-                                                  lamdaWins=(lamdaWins gs)+1,
-                                                  generator=newRand}
-                        else do putStrLn "\n¿Carta o listo? (C/L): " -- Si no se ha perdido toma de decisión
-                                cnLoop nDeck nHand newRand
-                                where
-                                  cnLoop nDeck nHand newRand = do
-                                    opt <- getChar
-                                    case (toUpper opt) of
-                                      'C' -> drawNPlay nDeck nHand gs --Al detener la toma de cartas juega lambda
-                                      'L' -> do let lambdaHand = (playLambda nDeck)
-                                                putStrLn $ "\nMi mano es "++ show lambdaHand ++
-                                                           ", suma " ++ (show . L.value) lambdaHand ++"."
-                                                if (winner nHand lambdaHand) == You
-                                                   then 
-                                                     do putStrLn ("¡Tú Ganas! Seguro hiciste trampa, " ++ 
-                                                                name gs ++".") 
-                                                        oneMoreRound gs { games=(games gs)+1,
-                                                                          generator=newRand}
-                                                   else 
-                                                     do if (value nHand) == (value lambdaHand)
-                                                            then putStrLn "Empatamos, así que yo gano. >:)"
-                                                            else putStrLn "YO gano. Como era de esperarse."
-                                                        oneMoreRound gs { games=(games gs)+1,
-                                                                          lamdaWins=(lamdaWins gs)+1,
-                                                                          generator=newRand}
-                                      _   -> cnLoop nDeck nHand newRand
+gameloop gs = do 
+    if games gs > 0
+        then currentState gs
+        else putStr ""
+    -- barajar mazo
+    let (deck,hand) = getJust $ 
+                        draw (shuffle (generator gs) fullDeck) empty 
+    drawNPlay deck hand gs -- Loop de tomar una carta hasta querer detener, y permitir a lambda jugar
+        where drawNPlay d h gs = do 
+                let Just (nDeck,nHand) =  draw d h -- Tomar una carta
+                putStr $ "\n" ++ name gs ++ ", tu mano es "++
+                     show nHand ++", suma "++ (show . L.value) nHand ++ "."
+                -- newRand <- newStdGen
+                let (_,newRand) = next $ generator gs
+                if busted nHand 
+                     then do putStrLn " Perdiste :("  --En caso de perder se intenta inciar otra partida
+                             oneMoreRound gs { games     = games gs + 1,
+                                               lamdaWins = lamdaWins gs + 1,
+                                               generator = newRand}
+                     else do putStrLn "\n¿Carta o listo? (C/L): " -- Si no se ha perdido toma de decisión
+                             cnLoop nDeck nHand newRand
+                             where
+                               cnLoop nDeck nHand newRand = do
+                                 opt <- getChar
+                                 case toUpper opt of
+                                   'C' -> drawNPlay nDeck nHand gs --Al detener la toma de cartas juega lambda
+                                   'L' -> do let lambdaHand = playLambda nDeck
+                                             putStrLn $ "\nMi mano es "++ show lambdaHand ++
+                                                        ", suma " ++ (show . L.value) lambdaHand ++"."
+                                             if winner nHand lambdaHand == You
+                                                then 
+                                                  do putStrLn ("¡Tú Ganas! Seguro hiciste trampa, " ++ 
+                                                             name gs ++".") 
+                                                     oneMoreRound gs { games     = games gs + 1,
+                                                                       generator = newRand}
+                                                else 
+                                                  do if value nHand == value lambdaHand
+                                                         then putStrLn "Empatamos, así que yo gano. >:)"
+                                                         else putStrLn "YO gano. Como era de esperarse."
+                                                     oneMoreRound gs { games     = games gs     + 1,
+                                                                       lamdaWins = lamdaWins gs + 1,
+                                                                       generator = newRand}
+                                   _   -> cnLoop nDeck nHand newRand
 
 -- Mensaje final. Si lambda ganó más partidas muestra un mensaje o en caso contrario usa otro.
 oneMoreRound :: GameState -> IO ()
@@ -121,9 +119,10 @@ welcome = do
     getLine
 
 -- Programa principal
-main 	=  do yourName <- welcome
-              c <- return $ mkStdGen seedInt
-              hSetBuffering stdin NoBuffering
-              gameloop (GS 0 0 yourName c)
+main :: IO ()
+main =  do 
+    yourName <- welcome
+    hSetBuffering stdin NoBuffering
+    gameloop (GS 0 0 yourName (mkStdGen seedInt))
 
 
