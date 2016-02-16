@@ -10,12 +10,13 @@
 
 module Main where 
 
-
+import Cards(empty)                        
 import LambdaJack    as L
-import System.Random(newStdGen,StdGen)
+import System.Random(newStdGen,mkStdGen,StdGen)
 import System.IO
-import GHC.Real(ceiling)
 import Data.Char(toUpper)
+
+seedInt = 42
 
 -- Implementación algo robusta de fromJust
 getJust :: Maybe a -> a
@@ -100,17 +101,20 @@ gameloop gs =
 		                                                                      generator=newRand}
 		                                  _   -> cnLoop nDeck nHand newRand
 
+-- Mensaje final. Si lambda ganó más partidas muestra un mensaje o en caso contrario usa otro.
 oneMoreRound :: GameState -> IO ()
 oneMoreRound gs = do {
 					cont <- continuePlaying;
                   	if cont then gameloop gs;
                             else 
-                            	if  ( (>=) (lamdaWins gs) (round ((fromIntegral (games gs))/2) )) ;
+                            	if  lw > tgm-lw ;
                             		then putStrLn "\n\nHasta luego, aunque no creo que desees regresar.";
                             		else putStrLn "\n\nHas sido un rival honorable. Esperare con ansias la próxima.";
-}
--- Programa principal
+} 
+          where lw   = lamdaWins gs;
+                tgm  = games gs;
 
+-- Mensaje de bienvenida y solicita el nombre
 welcome :: IO String
 welcome = do  
 {
@@ -119,8 +123,9 @@ welcome = do
         getLine;
 }
 
+-- Programa principal
 main 	=  do yourName <- welcome
-              c <- newStdGen
+              c <- return $ mkStdGen seedInt
               hSetBuffering stdin NoBuffering
               gameloop (GS 0 0 yourName c)
 
