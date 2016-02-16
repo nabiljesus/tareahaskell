@@ -37,7 +37,7 @@ fullDeck = H [ Card v s | v<- values, s<-suites ]
                   suites = Clubs : Diamonds : Spades : Hearts : []
 
 draw :: Hand -> Hand -> Maybe (Hand,Hand)
-draw (H [])      myH    = Just (empty, myH)       -- O es eso o es error
+draw (H [])      myH    = Nothing              -- O es eso o es error
 draw (H (d:ds)) (H us)  = Just (H ds ,H (d:us))
 
 playLambda :: Hand -> Hand    -- Juego de la computadora, la cague D:
