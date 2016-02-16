@@ -14,6 +14,7 @@ module Cards(
 	size
 	) where
 
+-- Representación de "palos" en una carta 
 data Suit = Clubs 
           | Diamonds 
           | Spades 
@@ -25,6 +26,7 @@ instance Show Suit where
     show Spades   = "♠"
     show Hearts   = "♥"
 
+-- Valor de una carta
 data Value = Numeric Int 
            | Jack 
            | Queen 
@@ -38,6 +40,7 @@ instance Show Value where
     show King        = "K"
     show Ace         = "A"
 
+-- Representación de una carta
 data Card = Card {
     value :: Value,
     suit  :: Suit
@@ -46,6 +49,7 @@ data Card = Card {
 instance Show Card where
     show (Card v s) = show s ++ show v
 
+-- Obtener el valor de una carta
 getVal :: Card -> Value
 getVal = value
 

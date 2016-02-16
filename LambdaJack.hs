@@ -7,9 +7,10 @@ import Data.Maybe(Maybe,fromJust)
 data Player = LambdaJack | You
   deriving(Eq)
 
+-- Función para obtener el valor de una mano
 value :: Hand -> Int
 value (H cards) = sumCards (foldl accVal (0,0) cards)
-    where accVal (accC,accA) c = case (getVal c) of 
+    where accVal (accC,accA) c = case (C.value c) of 
                                     Numeric n -> (accC+n,accA) 
                                     Ace       -> (accC,accA+1) 
                                     _         -> (accC+10,accA)
@@ -18,9 +19,12 @@ value (H cards) = sumCards (foldl accVal (0,0) cards)
                                     then acc+aces
                                     else acc+aces*11
 
+-- Función que indica si se una mano superó los 21 puntos
 busted :: Hand -> Bool
 busted = (>21) . value
 
+-- Dadas las manos de cartas de dos usuarios se indica
+-- si hay ganador al 
 winner :: Hand -> Hand -> Player
 winner myh lh = case (busted myh, busted lh) of
                     (True ,True ) -> LambdaJack
