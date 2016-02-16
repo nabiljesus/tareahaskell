@@ -16,6 +16,8 @@ import System.Random(StdGen,mkStdGen,next)
 import System.IO
 import Data.Char(toUpper)
 
+-- Semila utilizada para generar números aleatorios
+seedInt :: Int
 seedInt = 42
 
 -- Implementación algo robusta de fromJust
@@ -61,8 +63,8 @@ gameloop gs = do
     -- barajar mazo
     let (deck,hand) = getJust $ 
                         draw (shuffle (generator gs) fullDeck) empty 
-    drawNPlay deck hand gs -- Loop de tomar una carta hasta querer detener, y permitir a lambda jugar
-        where drawNPlay d h gs = do 
+    drawNPlay deck hand -- Loop de tomar una carta hasta querer detener, y permitir a lambda jugar
+        where drawNPlay d h = do 
                 let Just (nDeck,nHand) =  draw d h -- Tomar una carta
                 putStr $ "\n" ++ name gs ++ ", tu mano es "++
                      show nHand ++", suma "++ (show . L.value) nHand ++ "."
@@ -79,7 +81,7 @@ gameloop gs = do
                                cnLoop nDeck nHand newRand = do
                                  opt <- getChar
                                  case toUpper opt of
-                                   'C' -> drawNPlay nDeck nHand gs --Al detener la toma de cartas juega lambda
+                                   'C' -> drawNPlay nDeck nHand --Al detener la toma de cartas juega lambda
                                    'L' -> do let lambdaHand = playLambda nDeck
                                              putStrLn $ "\nMi mano es "++ show lambdaHand ++
                                                         ", suma " ++ (show . L.value) lambdaHand ++"."
