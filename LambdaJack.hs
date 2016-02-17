@@ -52,8 +52,9 @@ draw (H (d:ds)) (H us)  = Just (H ds ,H (d:us))
 playLambda :: Hand -> Hand    -- Juego de la computadora, la cague D:
 playLambda h =  till16 h empty
               where till16 (H []) lbH  = lbH
-                    till16 deck   lbH  = if value lbH < 16 then till16 nDeck nHand
-                                          else lbH
+                    till16 deck   lbH  = if value lbH < 16 
+                                            then till16 nDeck nHand
+                                         else lbH
                       where (nDeck,nHand) = fromJust $ draw deck lbH
 
 
@@ -67,12 +68,3 @@ shuffle rs (H deck) =  H sDeck
                   (fhalf,shalf)   = splitAt (rndNum-1) d
                   shuffledDeck    = head shalf : acc 
                   restOfDeck      = fhalf ++ tail shalf
-
---randomList :: (Random a) => (a,a) -> Int -> StdGen -> [a]
---randomList bnds n = take n . randomRs bnds  
-
---my a g b      = case a of 
---                0 -> b
---                _ -> my (a-1) (snd ans) $ (fst ans):b
-
---                where ans = randomR (1,a) g

@@ -4,6 +4,7 @@
         Javier López
         Nabil  Márquez
 -}
+
 module Cards(
 	Hand(..),
 	Card(..),
@@ -25,7 +26,7 @@ instance Show Suit where
     show Spades   = "♠"
     show Hearts   = "♥"
 
--- Valor de una carta
+-- Valor de una carta y su impresion personalizada
 data Value = Numeric Int 
            | Jack 
            | Queen 

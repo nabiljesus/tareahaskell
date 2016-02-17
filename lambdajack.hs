@@ -11,7 +11,7 @@
 module Main where 
 
 import Cards(empty)                        
-import LambdaJack    as L
+import LambdaJack  
 import System.Random(StdGen,mkStdGen,next)
 import System.IO
 import Data.Char(toUpper)
@@ -63,12 +63,12 @@ gameloop gs = do
     -- barajar mazo
     let (deck,hand) = getJust $ 
                         draw (shuffle (generator gs) fullDeck) empty 
-    drawNPlay deck hand -- Loop de tomar una carta hasta querer detener, y permitir a lambda jugar
+    drawNPlay deck hand -- Loop de tomar una carta hasta querer detener, 
+                         --y permitir a lambda jugar
         where drawNPlay d h = do 
                 let Just (nDeck,nHand) =  draw d h -- Tomar una carta
                 putStr $ "\n" ++ name gs ++ ", tu mano es "++
-                     show nHand ++", suma "++ (show . L.value) nHand ++ "."
-                -- newRand <- newStdGen
+                     show nHand ++", suma "++ (show . value) nHand ++ "."
                 let (_,newRand) = next $ generator gs
                 if busted nHand 
                      then do putStrLn " Perdiste :("  --En caso de perder se intenta inciar otra partida
@@ -83,8 +83,11 @@ gameloop gs = do
                                  case toUpper opt of
                                    'C' -> drawNPlay nDeck nHand --Al detener la toma de cartas juega lambda
                                    'L' -> do let lambdaHand = playLambda nDeck
-                                             putStrLn $ "\nMi mano es "++ show lambdaHand ++
-                                                        ", suma " ++ (show . L.value) lambdaHand ++"."
+                                             putStrLn $ "\nMi mano es "++ 
+                                                        show lambdaHand ++
+                                                        ", suma " ++ 
+                                                        (show . value) 
+                                                        lambdaHand ++"."
                                              if winner nHand lambdaHand == You
                                                 then 
                                                   do putStrLn ("¡Tú Ganas! Seguro hiciste trampa, " ++ 
@@ -107,8 +110,11 @@ oneMoreRound gs = do
                     if cont then gameloop gs;
                             else 
                               if  lw > tgm-lw ;
-                                then putStrLn "\n\nHasta luego, aunque no creo que desees regresar."
-                                else putStrLn "\n\nHas sido un rival honorable. Esperare con ansias la próxima."
+                                then putStrLn $ "\n\nHasta luego, aunque no"++
+                                              " creo que desees regresar."
+                                else putStrLn $ "\n\nHas sido un rival "++
+                                                "honorable. Esperare con "++
+                                                "ansias la próxima."
 
           where lw   = lamdaWins gs;
                 tgm  = games gs;
