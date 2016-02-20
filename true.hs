@@ -110,7 +110,14 @@ isTautology p = check p 0
                                    (Nothing )   -> error "Error 404 var not found"
             where env = generateCase (vars p) n
 
+{-
+--Implementación más eficiente de Istautology
 
+isTautology2 :: Proposition -> Bool
+isTautology2 p =  and $ map (\e -> envToBool e) envs
+    where envs      = [generateCase (vars p) i | i<-[0..]]
+          envToBool = (fromJust.(flip(evalP) p))
+-}
 
 {-
   También realizamos esta segunda implementación que pensamos que 
