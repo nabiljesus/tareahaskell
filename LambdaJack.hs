@@ -1,3 +1,12 @@
+{-
+    Módulo que define las operaciones con las cartas, el tipo
+    jugador y el barajar. 
+    
+    Creado por:
+        Javier López
+        Nabil  Márquez
+-}
+
 module LambdaJack where
 
 import Cards hiding(value)
